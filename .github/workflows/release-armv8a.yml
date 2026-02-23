@@ -43,7 +43,10 @@ jobs:
           fi
           APK_PATH="${APK_LIST[0]}"
           BASENAME="$(basename "${APK_PATH}" .apk)"
-          DEST="app/build/outputs/apk/release/${BASENAME}-arm64-v8a.apk"
+          if [[ "$BASENAME" != *arm64-v8a* ]]; then
+            BASENAME="${BASENAME}-arm64-v8a"
+          fi
+          DEST="app/build/outputs/apk/release/${BASENAME}.apk"
           cp "$APK_PATH" "$DEST"
           echo "asset_path=$DEST" >> "$GITHUB_OUTPUT"
 
