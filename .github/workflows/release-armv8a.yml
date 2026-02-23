@@ -20,7 +20,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up JDK 11 and cache Gradle
+      - name: Set up JDK 11 (Gradle cache enabled)
         uses: actions/setup-java@v4
         with:
           java-version: '11'
@@ -35,6 +35,7 @@ jobs:
 
       - name: Prepare release artifact
         id: prepare_apk
+        shell: bash
         run: |
           mapfile -t APK_LIST < <(find app/build/outputs/apk/release -name "*.apk")
           if [ "${#APK_LIST[@]}" -ne 1 ]; then
