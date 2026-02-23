@@ -36,11 +36,12 @@ jobs:
       - name: Prepare release artifact
         id: prepare_apk
         run: |
-          APK_PATH=$(find app/build/outputs/apk/release -name "*.apk" | head -n 1)
-          if [ -z "$APK_PATH" ]; then
-            echo "No APK produced; check build logs."
+          mapfile -t APK_LIST < <(find app/build/outputs/apk/release -name "*.apk")
+          if [ "${#APK_LIST[@]}" -ne 1 ]; then
+            echo "Expected one APK, found ${#APK_LIST[@]}."
             exit 1
           fi
+          APK_PATH="${APK_LIST[0]}"
           DEST="app/build/outputs/apk/release/accessibilitymanager-arm64-v8a.apk"
           cp "$APK_PATH" "$DEST"
           echo "asset_path=$DEST" >> "$GITHUB_OUTPUT"
