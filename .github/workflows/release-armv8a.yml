@@ -36,9 +36,10 @@ jobs:
         id: prepare_apk
         shell: bash
         run: |
-          mapfile -t APK_LIST < <(find app/build/outputs/apk/release -type f \( -name "app-release.apk" -o -name "app-release-*.apk" \))
+          mapfile -t APK_LIST < <(find app/build/outputs/apk/release -type f -name "app-release-unsigned.apk")
           if [ "${#APK_LIST[@]}" -ne 1 ]; then
             echo "Expected one APK, found ${#APK_LIST[@]}."
+            printf '%s\n' "${APK_LIST[@]}"
             exit 1
           fi
           APK_PATH="${APK_LIST[0]}"
