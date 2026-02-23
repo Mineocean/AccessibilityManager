@@ -30,13 +30,13 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build release APK (arm64-v8a)
-        run: ./gradlew clean assembleRelease
+        run: ./gradlew assembleRelease
 
       - name: Prepare release artifact
         id: prepare_apk
         shell: bash
         run: |
-          mapfile -t APK_LIST < <(find app/build/outputs/apk/release -type f -name "app-release-unsigned.apk")
+          mapfile -t APK_LIST < <(find app/build/outputs/apk/release -type f -name "*-release-unsigned.apk")
           if [ "${#APK_LIST[@]}" -ne 1 ]; then
             echo "Expected one APK, found ${#APK_LIST[@]}."
             printf '%s\n' "${APK_LIST[@]}"
