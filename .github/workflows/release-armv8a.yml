@@ -54,6 +54,10 @@ jobs:
               echo "Multiple release APKs found:"
               printf '%s\n' "${APK_CANDIDATES[@]}"
               exit 1
+            else
+              echo "No release APK candidates found in $APK_DIR"
+              ls -la "$APK_DIR"
+              exit 1
             fi
           fi
           if [ -z "$APK_PATH" ]; then
@@ -68,7 +72,7 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: accessibilitymanager-arm64-v8a
+          name: accessibility-manager-arm64-v8a
           path: ${{ steps.prepare_apk.outputs.asset_path }}
 
       - name: Publish release
