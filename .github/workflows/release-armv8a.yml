@@ -1,0 +1,86 @@
+name: Build and Release ARM64 APK
+
+on:
+  push:
+    branches: [ main, copilot/create-action-workflow-armv8a-apk ]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag name for the release"
+        required: false
+      release_name:
+        description: "Release title"
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    env:
+      APP_MODULE: app
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build release APK (arm64-v8a)
+        run: ./gradlew assembleRelease
+
+      - name: Prepare release artifact
+        id: prepare_apk
+        shell: bash
+        run: |
+          APK_DIR="$APP_MODULE/build/outputs/apk/release"
+          if [ ! -d "$APK_DIR" ]; then
+            echo "APK output directory $APK_DIR not found"
+            exit 1
+          fi
+          if [ -f "$APK_DIR/${APP_MODULE}-release.apk" ]; then
+            APK_PATH="$APK_DIR/${APP_MODULE}-release.apk"
+          elif [ -f "$APK_DIR/${APP_MODULE}-release-unsigned.apk" ]; then
+            APK_PATH="$APK_DIR/${APP_MODULE}-release-unsigned.apk"
+          else
+            shopt -s nullglob
+            APK_CANDIDATES=( "$APK_DIR"/*-release*.apk )
+            shopt -u nullglob
+            if [ "${#APK_CANDIDATES[@]}" -eq 1 ]; then
+              APK_PATH="${APK_CANDIDATES[0]}"
+            elif [ "${#APK_CANDIDATES[@]}" -gt 1 ]; then
+              echo "Multiple release APKs found:"
+              printf '%s\n' "${APK_CANDIDATES[@]}"
+              exit 1
+            else
+              echo "No release APK candidates found in $APK_DIR"
+              ls -la "$APK_DIR"
+              exit 1
+            fi
+          fi
+          DEST="$APK_DIR/${APP_MODULE}-release-arm64-v8a.apk"
+          cp "$APK_PATH" "$DEST"
+          echo "asset_path=$DEST" >> "$GITHUB_OUTPUT"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.APP_MODULE }}-arm64-v8a
+          path: ${{ steps.prepare_apk.outputs.asset_path }}
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.inputs.tag || format('arm64-v8a-{0}', github.run_number) }}
+          name: ${{ github.event.inputs.release_name || format('arm64-v8a build #{0}', github.run_number) }}
+          files: ${{ steps.prepare_apk.outputs.asset_path }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
