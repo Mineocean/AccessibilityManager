@@ -1,6 +1,8 @@
 name: Build and Release ARM64 APK
 
 on:
+  push:
+    branches: [ main, copilot/create-action-workflow-armv8a-apk ]
   workflow_dispatch:
     inputs:
       tag:
