@@ -52,7 +52,7 @@ jobs:
             APK_CANDIDATES=( "$APK_DIR"/*-release.apk "$APK_DIR"/*-release-unsigned.apk )
             shopt -u nullglob
             if [ ${#APK_CANDIDATES[@]} -gt 0 ]; then
-              IFS=$'\n' APK_CANDIDATES=($(ls -1t "${APK_CANDIDATES[@]}"))
+              IFS=$'\n' APK_CANDIDATES=($(printf '%s\n' "${APK_CANDIDATES[@]}" | sort))
             fi
             if [ "${#APK_CANDIDATES[@]}" -eq 1 ]; then
               APK_PATH="${APK_CANDIDATES[0]}"
