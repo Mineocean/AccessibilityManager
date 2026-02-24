@@ -38,7 +38,10 @@ jobs:
         shell: bash
         run: |
           APK_DIR="app/build/outputs/apk/release"
-          APK_PATH=$(find "$APK_DIR" -maxdepth 1 -type f -name "*release*.apk" | head -n 1)
+          APK_PATH=$(find "$APK_DIR" -maxdepth 1 -type f -name "*-release.apk" | head -n 1)
+          if [ -z "$APK_PATH" ]; then
+            APK_PATH=$(find "$APK_DIR" -maxdepth 1 -type f -name "*-release-unsigned.apk" | head -n 1)
+          fi
           if [ -z "$APK_PATH" ]; then
             echo "No APK produced under $APK_DIR"
             ls -la "$APK_DIR" || true
