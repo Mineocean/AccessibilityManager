@@ -39,7 +39,7 @@ jobs:
         id: prepare_apk
         shell: bash
         run: |
-          APP_MODULE="${APP_MODULE:-app}"
+          APP_MODULE="$APP_MODULE"
           APK_DIR="$APP_MODULE/build/outputs/apk/release"
           if [ ! -d "$APK_DIR" ]; then
             echo "APK output directory $APK_DIR not found"
@@ -51,7 +51,7 @@ jobs:
             APK_PATH="$APK_DIR/${APP_MODULE}-release-unsigned.apk"
           else
             shopt -s nullglob
-            APK_CANDIDATES=( "$APK_DIR"/*-release.apk "$APK_DIR"/*-release-unsigned.apk )
+            APK_CANDIDATES=( "$APK_DIR"/*-release*.apk )
             shopt -u nullglob
             declare -A SEEN
             UNIQUE_CANDIDATES=()
