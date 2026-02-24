@@ -16,6 +16,8 @@ permissions:
 jobs:
   build-release:
     runs-on: ubuntu-latest
+    env:
+      APP_MODULE: app
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -37,7 +39,7 @@ jobs:
         id: prepare_apk
         shell: bash
         run: |
-          APP_MODULE="app"
+          APP_MODULE="${APP_MODULE:-app}"
           APK_DIR="$APP_MODULE/build/outputs/apk/release"
           if [ ! -d "$APK_DIR" ]; then
             echo "APK output directory $APK_DIR not found"
@@ -54,7 +56,7 @@ jobs:
             declare -A SEEN
             UNIQUE_CANDIDATES=()
             for candidate in "${APK_CANDIDATES[@]}"; do
-              if [ -e "$candidate" ] && [ -z "${SEEN[$candidate]}" ]; then
+              if [ -z "${SEEN[$candidate]}" ]; then
                 SEEN[$candidate]=1
                 UNIQUE_CANDIDATES+=("$candidate")
               fi
